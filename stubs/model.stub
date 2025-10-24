@@ -1,1 +1,19 @@
-"<?php\n// model stub" 
+<?php
+
+namespace {{namespace}};
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+{{useSoftDeletes}}
+
+class {{class}} extends Model
+{
+    use HasFactory;
+    {{softDeleteTrait}}
+
+    protected $fillable = [
+        {{fillable}}
+    ];
+{{casts}}
+{{relationships}}
+}
