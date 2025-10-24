@@ -1,1 +1,25 @@
-"<?php\n// controller (api)" 
+ <?php
+
+namespace {{namespace}};
+
+use App\Http\Controllers\Controller;
+{{modelImport}}
+{{requestImports}}
+use Illuminate\Http\Request;
+
+class {{class}} extends Controller
+{
+{{authMiddleware}}
+{{indexMethod}}
+
+{{storeMethod}}
+
+    public function show({{modelName}} ${{modelVariable}})
+    {
+        return response()->json(${{modelVariable}});
+    }
+
+{{updateMethod}}
+
+{{destroyMethod}}
+}
