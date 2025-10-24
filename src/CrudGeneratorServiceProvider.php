@@ -1,0 +1,1 @@
+"<?php\n\nnamespace sndpbag\CrudGenerator;\n\nuse Illuminate\Support\ServiceProvider;\n\nclass CrudGeneratorServiceProvider extends ServiceProvider {\n    public function register() {}\n    public function boot() {}\n}" 
