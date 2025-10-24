@@ -1,1 +1,82 @@
-"<?php\n// PHPUnit test" 
+<?php
+
+namespace {{namespace}};
+
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+use {{modelNamespace}}\{{modelName}};
+use App\Models\User;
+
+class {{class}} extends TestCase
+{
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->user = User::factory()->create();
+    }
+
+    public function test_index_page_is_accessible()
+    {
+        $response = $this->actingAs($this->user)
+            ->get(route('{{routePath}}.index'));
+
+        $response->assertStatus(200);
+    }
+
+    public function test_create_page_is_accessible()
+    {
+        $response = $this->actingAs($this->user)
+            ->get(route('{{routePath}}.create'));
+
+        $response->assertStatus(200);
+    }
+
+    public function test_authenticated_user_can_create_a_{{modelVariable}}()
+    {
+        $data = [
+            {{testData}}
+        ];
+
+        $response = $this->actingAs($this->user)
+            ->post(route('{{routePath}}.store'), $data);
+
+        $response->assertRedirect(route('{{routePath}}.index'));
+        $this->assertDatabaseHas('{{tableName}}', $data);
+    }
+
+    public function test_authenticated_user_can_update_a_{{modelVariable}}()
+    {
+        ${{modelVariable}} = {{modelName}}::factory()->create();
+
+        $updatedData = [
+            {{testData}}
+        ];
+
+        $response = $this->actingAs($this->user)
+            ->put(route('{{routePath}}.update', ${{modelVariable}}), $updatedData);
+
+        $response->assertRedirect(route('{{routePath}}.index'));
+        $this->assertDatabaseHas('{{tableName}}', $updatedData);
+    }
+
+    public function test_authenticated_user_can_delete_a_{{modelVariable}}()
+    {
+        ${{modelVariable}} = {{modelName}}::factory()->create();
+
+        $response = $this->actingAs($this->user)
+            ->delete(route('{{routePath}}.destroy', ${{modelVariable}}));
+
+        $response->assertRedirect(route('{{routePath}}.index'));
+        $this->assertDatabaseMissing('{{tableName}}', ['id' => ${{modelVariable}}->id]);
+    }
+
+    public function test_validation_errors_are_returned_when_creating_{{modelVariable}}()
+    {
+        $response = $this->actingAs($this->user)
+            ->post(route('{{routePath}}.store'), []);
+
+        $response->assertSessionHasErrors();
+    }
+}
