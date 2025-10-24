@@ -1,1 +1,29 @@
-"<?php\n// controller (web)" 
+<?php
+
+namespace {{namespace}};
+
+use App\Http\Controllers\Controller;
+{{modelImport}}
+{{requestImports}}
+use Illuminate\Http\Request;
+
+class {{class}} extends Controller
+{
+{{authMiddleware}}
+{{indexMethod}}
+
+{{createMethod}}
+
+{{storeMethod}}
+
+    public function show({{modelName}} ${{modelVariable}})
+    {
+        return view('{{viewPath}}.show', compact('{{modelVariable}}'));
+    }
+
+{{editMethod}}
+
+{{updateMethod}}
+
+{{destroyMethod}}
+}
