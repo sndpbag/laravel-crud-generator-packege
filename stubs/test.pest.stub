@@ -1,1 +1,62 @@
-"<?php\n// Pest test" 
+ <?php
+
+use {{modelNamespace}}\{{modelName}};
+use App\Models\User;
+
+beforeEach(function () {
+    $this->user = User::factory()->create();
+});
+
+test('index page is accessible', function () {
+    $this->actingAs($this->user)
+        ->get(route('{{routePath}}.index'))
+        ->assertStatus(200);
+});
+
+test('create page is accessible', function () {
+    $this->actingAs($this->user)
+        ->get(route('{{routePath}}.create'))
+        ->assertStatus(200);
+});
+
+test('authenticated user can create a {{modelVariable}}', function () {
+    $data = [
+        {{testData}}
+    ];
+
+    $this->actingAs($this->user)
+        ->post(route('{{routePath}}.store'), $data)
+        ->assertRedirect(route('{{routePath}}.index'));
+
+    expect('{{tableName}}')->toHaveRecord($data);
+});
+
+test('authenticated user can update a {{modelVariable}}', function () {
+    ${{modelVariable}} = {{modelName}}::factory()->create();
+
+    $updatedData = [
+        {{testData}}
+    ];
+
+    $this->actingAs($this->user)
+        ->put(route('{{routePath}}.update', ${{modelVariable}}), $updatedData)
+        ->assertRedirect(route('{{routePath}}.index'));
+
+    expect('{{tableName}}')->toHaveRecord($updatedData);
+});
+
+test('authenticated user can delete a {{modelVariable}}', function () {
+    ${{modelVariable}} = {{modelName}}::factory()->create();
+
+    $this->actingAs($this->user)
+        ->delete(route('{{routePath}}.destroy', ${{modelVariable}}))
+        ->assertRedirect(route('{{routePath}}.index'));
+
+    expect('{{tableName}}')->not->toHaveRecord(['id' => ${{modelVariable}}->id]);
+});
+
+test('validation errors are returned when creating {{modelVariable}}', function () {
+    $this->actingAs($this->user)
+        ->post(route('{{routePath}}.store'), [])
+        ->assertSessionHasErrors();
+});
