@@ -16,7 +16,7 @@ return [
     |--------------------------------------------------------------------------
     | Default storage path for file uploads
     */
-    'storage_path' => env('CRUD_STORAGE_PATH', 'public/uploads'),
+    'storage_path' => env('CRUD_STORAGE_PATH', 'uploads'),
 
     /*
     |--------------------------------------------------------------------------
