@@ -1,4 +1,3 @@
-"<?php\n// store request" 
 <?php
 
 namespace {{namespace}};
