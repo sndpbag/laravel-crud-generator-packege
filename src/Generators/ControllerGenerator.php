@@ -201,7 +201,9 @@ class ControllerGenerator extends BaseGenerator
             $method .= "        // Handle file uploads\n";
             foreach ($fileFields as $field) {
                 $method .= "        if (\$request->hasFile('{$field}')) {\n";
-                $method .= "            \$data['{$field}'] = \$request->file('{$field}')->store(config('crud-generator.storage_path'), 'public');\n";
+                // $method .= "            \$data['{$field}'] = \$request->file('{$field}')->store(config('crud-generator.storage_path'), 'public');\n";
+               $method .= "            \$path = config('crud-generator.storage_path') . '/' . '{$this->getTableName()}';\n";
+               $method .= "            \$data['{$field}'] = \$request->file('{$field}')->store(\$path, 'public');\n";
                 $method .= "        }\n\n";
             }
         }
@@ -271,7 +273,10 @@ class ControllerGenerator extends BaseGenerator
                 $method .= "            if (\${$variable}->{$field}) {\n";
                 $method .= "                \\Storage::disk('public')->delete(\${$variable}->{$field});\n";
                 $method .= "            }\n";
-                $method .= "            \$data['{$field}'] = \$request->file('{$field}')->store(config('crud-generator.storage_path'), 'public');\n";
+                // $method .= "            \$data['{$field}'] = \$request->file('{$field}')->store(config('crud-generator.storage_path'), 'public');\n";
+               $method .= "            \$path = config('crud-generator.storage_path') . '/' . '{$this->getTableName()}';\n";
+               $method .= "            \$data['{$field}'] = \$request->file('{$field}')->store(\$path, 'public');\n";
+               
                 $method .= "        }\n\n";
             }
         }
