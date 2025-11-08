@@ -1,6 +1,7 @@
 {
     "name": "sndpbag/crud-generator",
     "description": "A powerful Laravel CRUD generator package with advanced features",
+    "version": "1.0.0",
     "type": "library",
     "license": "MIT",
     "authors": [

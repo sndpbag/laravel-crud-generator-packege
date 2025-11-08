@@ -213,6 +213,7 @@ class MakeCrudCommand extends Command
             $this->line("  → index.blade.php");
             $this->line("  → create.blade.php");
             $this->line("  → edit.blade.php");
+            $this->line("  → show.blade.php");
         } else {
             $this->error("✘ View generation failed: {$result['message']}");
         }

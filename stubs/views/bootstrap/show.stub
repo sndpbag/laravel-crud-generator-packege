@@ -1,0 +1,29 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Details for {{modelName}}</h5>
+                    <a href="{{ route('{{routePath}}.index') }}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </a>
+                </div>
+
+                <div class="card-body">
+                
+{{showFields}}
+
+                    <div class="mt-4">
+                        <a href="{{ route('{{routePath}}.edit', ${{modelVariable}}) }}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection

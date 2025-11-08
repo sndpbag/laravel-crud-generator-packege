@@ -16,7 +16,26 @@ abstract class BaseGenerator
 
     abstract public function generate(): array;
 
-    protected function getStub(string $type): string
+    // protected function getStub(string $type): string
+    // {
+    //     // Check if user has published custom stubs
+    //     $customStubPath = base_path("stubs/crud-generator/{$type}.stub");
+        
+    //     if (File::exists($customStubPath)) {
+    //         return File::get($customStubPath);
+    //     }
+
+    //     // Use default stub
+    //     $defaultStubPath = __DIR__ . "/../../stubs/{$type}.stub";
+        
+    //     if (File::exists($defaultStubPath)) {
+    //         return File::get($defaultStubPath);
+    //     }
+
+    //     return '';
+    // }
+
+ protected function getStub(string $type): string
     {
         // Check if user has published custom stubs
         $customStubPath = base_path("stubs/crud-generator/{$type}.stub");

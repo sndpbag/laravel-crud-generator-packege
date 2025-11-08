@@ -344,3 +344,6 @@ class ControllerGenerator extends BaseGenerator
         
         return app_path("Http/Controllers/{$namespacePath}/{$className}.php");
     }
+
+}
+ 

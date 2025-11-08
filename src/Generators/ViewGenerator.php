@@ -15,6 +15,7 @@ class ViewGenerator extends BaseGenerator
         $this->generateIndexView($viewPath);
         $this->generateCreateView($viewPath);
         $this->generateEditView($viewPath);
+        $this->generateShowView($viewPath);
 
         return [
             'success' => true,
@@ -25,7 +26,7 @@ class ViewGenerator extends BaseGenerator
     protected function generateIndexView($viewPath): void
     {
         $template = config('crud-generator.template', 'bootstrap');
-        $stub = $this->getStub("views.{$template}.index");
+        $stub = $this->getStub("views/{$template}/index");
         
         $stub = $this->replaceCommonPlaceholders($stub);
         $stub = $this->replaceTableHeaders($stub);
@@ -38,7 +39,7 @@ class ViewGenerator extends BaseGenerator
     protected function generateCreateView($viewPath): void
     {
         $template = config('crud-generator.template', 'bootstrap');
-        $stub = $this->getStub("views.{$template}.create");
+        $stub = $this->getStub("views/{$template}/create");
         
         $stub = $this->replaceCommonPlaceholders($stub);
         $stub = $this->replaceFormFields($stub);
@@ -49,7 +50,7 @@ class ViewGenerator extends BaseGenerator
     protected function generateEditView($viewPath): void
     {
         $template = config('crud-generator.template', 'bootstrap');
-        $stub = $this->getStub("views.{$template}.edit");
+        $stub = $this->getStub("views/{$template}/edit");
         
         $stub = $this->replaceCommonPlaceholders($stub);
         $stub = $this->replaceFormFields($stub, true);
@@ -257,5 +258,69 @@ class ViewGenerator extends BaseGenerator
         }
         
         return resource_path("views/{$viewName}");
+    }
+
+
+    protected function generateShowView($viewPath): void
+    {
+        $template = config('crud-generator.template', 'bootstrap');
+        $stub = $this->getStub("views/{$template}/show");
+        
+        $stub = $this->replaceCommonPlaceholders($stub);
+        $stub = $this->replaceShowFields($stub);
+        
+        File::put("{$viewPath}/show.blade.php", $stub);
+    }
+
+    protected function replaceShowFields($stub): string
+    {
+        $variable = $this->getModelVariable();
+        $fieldsHtml = '';
+
+        // Add regular fields
+        foreach ($this->options['fields'] as $field) {
+            $label = Str::title(str_replace('_', ' ', $field['name']));
+            $fieldName = $field['name'];
+            
+            $fieldsHtml .= "                    <div class=\"mb-3\">\n";
+            $fieldsHtml .= "                        <strong>{$label}:</strong>\n";
+            
+            if ($field['type'] === 'image') {
+                $fieldsHtml .= "                        @if(\${$variable}->{$fieldName})\n";
+                $fieldsHtml .= "                            <div class=\"mt-2\"><img src=\"{{ Storage::url(\${$variable}->{$fieldName}) }}\" alt=\"{$label}\" style=\"max-width: 300px;\"></div>\n";
+                $fieldsHtml .= "                        @else\n";
+                $fieldsHtml .= "                            <p class=\"mb-0\">N/A</p>\n";
+                $fieldsHtml .= "                        @endif\n";
+            } elseif ($field['type'] === 'file') {
+                $fieldsHtml .= "                        @if(\${$variable}->{$fieldName})\n";
+                $fieldsHtml .= "                            <a href=\"{{ Storage::url(\${$variable}->{$fieldName}) }}\" target=\"_blank\" class=\"d-block mt-1\">View File</a>\n";
+                $fieldsHtml .= "                        @else\n";
+                $fieldsHtml .= "                            <p class=\"mb-0\">N/A</p>\n";
+                $fieldsHtml .= "                        @endif\n";
+            } elseif ($field['type'] === 'boolean') {
+                $fieldsHtml .= "                        <p class=\"mb-0\">{{ \${$variable}->{$fieldName} ? 'Yes' : 'No' }}</p>\n";
+            } else {
+                $fieldsHtml .= "                        <p class=\"mb-0\">{{ \${$variable}->{$fieldName} }}</p>\n";
+            }
+            
+            $fieldsHtml .= "                    </div>\n\n";
+        }
+
+        // Add belongsTo relationship fields
+        foreach ($this->options['relationships'] as $relation) {
+            if ($relation['type'] === 'belongsTo') {
+                $relationModel = $relation['model'];
+                $relationVar = Str::camel($relationModel);
+                $label = Str::title(str_replace('_', ' ', $relationModel));
+                
+                $fieldsHtml .= "                    <div class=\"mb-3\">\n";
+                $fieldsHtml .= "                        <strong>{$label}:</strong>\n";
+                // Assuming relationship name field is 'name'. You can make this configurable later.
+                $fieldsHtml .= "                        <p class=\"mb-0\">{{ \${$variable}->{$relationVar}->name ?? 'N/A' }}</p>\n";
+                $fieldsHtml .= "                    </div>\n\n";
+            }
+        }
+        
+        return str_replace('{{showFields}}', $fieldsHtml, $stub);
     }
 }
