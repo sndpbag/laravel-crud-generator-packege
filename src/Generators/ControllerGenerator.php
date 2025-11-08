@@ -29,6 +29,8 @@ class ControllerGenerator extends BaseGenerator
         $stub = $this->replaceUpdateMethod($stub);
         $stub = $this->replaceDestroyMethod($stub);
 
+        $stub = str_replace('{{modelName}}', $this->options['modelName'], $stub);
+
         $path = $this->getControllerPath();
         $this->ensureDirectoryExists(dirname($path));
         File::put($path, $stub);
