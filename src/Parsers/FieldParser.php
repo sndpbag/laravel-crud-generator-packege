@@ -52,17 +52,20 @@ class FieldParser
             'enum_values' => [],
         ];
 
-        // Parse modifiers and enum values
-        for ($i = 2; $i < count($parts); $i++) {
-            $modifier = $parts[$i];
-            
-            // Check for enum with values
+     // Check for enum with values
             if (preg_match('/^enum\((.*?)\)$/', $parts[1], $matches)) {
                 $field['type'] = 'enum';
                 $field['enum_values'] = array_map('trim', explode(',', $matches[1]));
                 $field['html_type'] = 'select';
-                continue;
+                // continue;
             }
+
+
+        // Parse modifiers and enum values
+        for ($i = 2; $i < count($parts); $i++) {
+            $modifier = $parts[$i];
+            
+       
 
             // Check for default value
             if (preg_match('/^default\((.*?)\)$/', $modifier, $matches)) {
