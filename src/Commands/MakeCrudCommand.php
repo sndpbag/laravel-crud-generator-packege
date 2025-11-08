@@ -23,7 +23,8 @@ class MakeCrudCommand extends Command
                             {--belongsTo=* : BelongsTo relationships}
                             {--hasMany=* : HasMany relationships}
                             {--tests : Generate PHPUnit tests}
-                            {--pest : Generate Pest tests}';
+                            {--pest : Generate Pest tests}
+                            {--email : Generate Mailable and Job for sending email on create}';
 
     protected $description = 'Generate a complete CRUD with all necessary files';
 
@@ -126,6 +127,7 @@ class MakeCrudCommand extends Command
             'softDelete' => $this->option('softdelete'),
             'auth' => $this->option('auth'),
             'api' => $this->option('api'),
+            'email' => $this->option('email'),
         ];
 
         // 1. Generate Model
@@ -152,6 +154,11 @@ class MakeCrudCommand extends Command
         if ($this->option('tests') || $this->option('pest')) {
             $this->generateTests($options);
         }
+
+        // 8. Generate Mail/Job (if requested)
+    if ($this->option('email')) {
+        $this->generateEmailServices($options);
+    }
     }
 
     protected function generateModel($options)
@@ -245,6 +252,19 @@ class MakeCrudCommand extends Command
             $this->error("✘ Test generation failed: {$result['message']}");
         }
     }
+
+    protected function generateEmailServices($options)
+{
+    // এই জেনারেটর ক্লাসগুলো আমরা পরের ধাপে তৈরি করবো
+    $mailableGenerator = new \Sndpbag\CrudGenerator\Generators\MailableGenerator($options);
+    $mailableResult = $mailableGenerator->generate();
+    $this->info("✔ Mailable created: {$mailableResult['path']}");
+    $this->info("  → Email view created: {$mailableResult['view_path']}");
+
+    $jobGenerator = new \Sndpbag\CrudGenerator\Generators\JobGenerator($options);
+    $jobResult = $jobGenerator->generate();
+    $this->info("✔ Job created: {$jobResult['path']}");
+}
 
     protected function displaySummary()
     {

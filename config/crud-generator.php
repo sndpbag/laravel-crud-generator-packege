@@ -28,6 +28,8 @@ return [
         'model' => 'App\\Models',
         'controller' => 'App\\Http\\Controllers',
         'request' => 'App\\Http\\Requests',
+        'mail' => 'App\\Mail',   
+        'job' => 'App\\Jobs',    
     ],
 
     /*
@@ -105,4 +107,17 @@ return [
     | Options: 'sweetalert2', 'toastr', 'native'
     */
     'alert_library' => 'sweetalert2',
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Email
+    |--------------------------------------------------------------------------
+    |
+    | Jokhon model-e kono email field paoa jabe na, tokhon ei email-e
+    | notification pathano hobe. Eti .env file-er ADMIN_EMAIL theke value nebe.
+    |
+    */
+    'admin_email' => env('ADMIN_EMAIL', 'admin@example.com'),
+    
 ];

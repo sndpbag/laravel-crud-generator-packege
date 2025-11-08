@@ -1,0 +1,14 @@
+@component('mail::message')
+# A new {{modelName}} has been created
+
+Hello,
+
+A new {{modelName}} (ID: **{{ ${{modelVariable}}->id }}**) has been created successfully.
+
+@component('mail::button', ['url' => route('{{routePath}}.show', ${{modelVariable}})])
+View {{modelName}}
+@endcomponent
+
+Thanks,<br>
+{{ config('app.name') }}
+@endcomponent

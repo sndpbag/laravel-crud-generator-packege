@@ -1,0 +1,35 @@
+<?php
+
+namespace {{namespace}};
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Mail\Mailable;
+use Illuminate\Queue\SerializesModels;
+{{modelImport}}
+
+class {{class}} extends Mailable implements ShouldQueue
+{
+    use Queueable, SerializesModels;
+
+    public ${{modelVariable}};
+
+    /**
+     * Create a new message instance.
+     */
+    public function __construct({{modelName}} ${{modelVariable}})
+    {
+        $this->{{modelVariable}} = ${{modelVariable}};
+    }
+
+    /**
+     * Build the message.
+     *
+     * @return $this
+     */
+    public function build()
+    {
+        return $this->subject('New {{modelName}} Created')
+                    ->markdown('{{viewPath}}');
+    }
+}

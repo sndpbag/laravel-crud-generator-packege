@@ -57,6 +57,14 @@ class ControllerGenerator extends BaseGenerator
     {
         $modelNamespace = $this->getFullNamespace('model');
         $modelImport = "use {$modelNamespace}\\{$this->options['modelName']};";
+
+        if ($this->options['email']) {
+        $modelName = $this->options['modelName'];
+        $jobNamespace = $this->getFullNamespace('job');
+        $jobName = "Send{$modelName}CreatedEmailJob";
+        $modelImport .= "\nuse {$jobNamespace}\\{$jobName};";
+    }
+
         
         return str_replace('{{modelImport}}', $modelImport, $stub);
     }
@@ -209,6 +217,16 @@ class ControllerGenerator extends BaseGenerator
         }
         
         $method .= "        \${$variable} = {$modelName}::create(\$data);\n\n";
+
+        if ($this->options['email']) {
+        $method .= "        // Dispatch email job\n";
+        $method .= "        try {\n";
+        $method .= "            Send{$modelName}CreatedEmailJob::dispatch(\${$variable});\n";
+        $method .= "        } catch (\Exception \$e) {\n";
+        $method .= "            // Log error but don't stop the request\n";
+        $method .= "            \Log::error('Email job dispatch failed: ' . \$e->getMessage());\n";
+        $method .= "        }\n\n";
+    }
         
         if ($this->options['api']) {
             $method .= "        return response()->json(\${$variable}, 201);\n";
