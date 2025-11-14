@@ -22,7 +22,7 @@ class RequestGenerator extends BaseGenerator
     protected function generateStoreRequest(): string
     {
         $stub = $this->getStub('request.store');
-        
+
         $stub = $this->replaceNamespace($stub);
         $stub = $this->replaceClassName($stub, 'Store');
         $stub = $this->replaceRules($stub, 'store');
@@ -37,7 +37,7 @@ class RequestGenerator extends BaseGenerator
     protected function generateUpdateRequest(): string
     {
         $stub = $this->getStub('request.update');
-        
+
         $stub = $this->replaceNamespace($stub);
         $stub = $this->replaceClassName($stub, 'Update');
         $stub = $this->replaceRules($stub, 'update');
@@ -61,18 +61,81 @@ class RequestGenerator extends BaseGenerator
         return str_replace('{{class}}', $className, $stub);
     }
 
-    protected function replaceRules($stub, $context): string
+    // protected function replaceRules($stub, $context): string
+    // {
+    //     $rules = [];
+
+    //     foreach ($this->options['fields'] as $field) {
+    //         $fieldRules = $this->generateFieldRules($field, $context);
+    //         $rules[] = "            '{$field['name']}' => '{$fieldRules}',";
+    //     }
+
+    //     $rulesString = implode("\n", $rules);
+    //     return str_replace('{{rules}}', $rulesString, $stub);
+    // }
+
+
+ protected function replaceRules($stub, $context): string
     {
         $rules = [];
+        $modelVariable = $this->getModelVariable(); // e.g., 'contact'
 
         foreach ($this->options['fields'] as $field) {
-            $fieldRules = $this->generateFieldRules($field, $context);
-            $rules[] = "            '{$field['name']}' => '{$fieldRules}',";
+            $fieldRules = $this->generateFieldRules($field, $context); 
+
+            // যে স্ট্রিংটি খুঁজতে হবে (এখন ->id সহ)
+            $dynamicString = "{\$this->route('{$modelVariable}')->id}";
+
+            // চেক করুন এটি ডাইনামিক ইউনিক রুল কিনা
+            if ($context === 'update' && $field['unique'] && str_contains($fieldRules, $dynamicString)) {
+                
+                // 1. ডাইনামিক অংশটি বাদ দিয়ে স্ট্যাটিক অংশটি আলাদা করুন
+                $staticRulePart = str_replace(
+                    ",{$dynamicString}", // e.g., ",{$this->route('contact')->id}"
+                    "",
+                    $fieldRules
+                );
+
+                // 2. সঠিক পিএইচপি কনক্যাটেনেশন দিয়ে রুলটি পুনর্গঠন করুন
+                // এটি তৈরি করবে: '...|unique:contacts,email,' . $this->route('contact')->id,
+                $rules[] = "            '{$field['name']}' => '{$staticRulePart},' . \$this->route('{$modelVariable}')->id,";
+
+            } else {
+                // সাধারণ রুল
+                $rules[] = "            '{$field['name']}' => '{$fieldRules}',";
+            }
         }
 
         $rulesString = implode("\n", $rules);
         return str_replace('{{rules}}', $rulesString, $stub);
     }
+
+
+
+    // protected function generateFieldRules(array $field, string $context): string
+    // {
+    //     $rules = $field['validation'];
+
+    //     // Handle unique rule for update context
+    //     if ($field['unique'] && $context === 'update') {
+    //         $tableName = $this->getTableName();
+    //         $uniqueIndex = array_search('unique', $rules);
+
+    //         if ($uniqueIndex !== false) {
+    //             // Replace 'unique' with 'unique:table,column,except_id'
+    //             $rules[$uniqueIndex] = "unique:{$tableName},{$field['name']},{\$this->route('id')}";
+    //         }
+    //     } elseif ($field['unique'] && $context === 'store') {
+    //         $tableName = $this->getTableName();
+    //         $uniqueIndex = array_search('unique', $rules);
+
+    //         if ($uniqueIndex !== false) {
+    //             $rules[$uniqueIndex] = "unique:{$tableName},{$field['name']}";
+    //         }
+    //     }
+
+    //     return implode('|', $rules);
+    // }
 
     protected function generateFieldRules(array $field, string $context): string
     {
@@ -82,15 +145,16 @@ class RequestGenerator extends BaseGenerator
         if ($field['unique'] && $context === 'update') {
             $tableName = $this->getTableName();
             $uniqueIndex = array_search('unique', $rules);
-            
+            $modelVariable = $this->getModelVariable(); // e.g., 'contact'
+
             if ($uniqueIndex !== false) {
-                // Replace 'unique' with 'unique:table,column,except_id'
-                $rules[$uniqueIndex] = "unique:{$tableName},{$field['name']},{\$this->route('id')}";
+                // এটি এখন ->id যোগ করবে
+                $rules[$uniqueIndex] = "unique:{$tableName},{$field['name']},{\$this->route('{$modelVariable}')->id}";
             }
         } elseif ($field['unique'] && $context === 'store') {
             $tableName = $this->getTableName();
             $uniqueIndex = array_search('unique', $rules);
-            
+
             if ($uniqueIndex !== false) {
                 $rules[$uniqueIndex] = "unique:{$tableName},{$field['name']}";
             }
@@ -103,7 +167,7 @@ class RequestGenerator extends BaseGenerator
     {
         $namespacePath = str_replace('\\', '/', $this->options['namespace']);
         $className = $prefix . $this->options['modelName'] . 'Request';
-        
+
         return app_path("Http/Requests/{$namespacePath}/{$className}.php");
     }
 }
