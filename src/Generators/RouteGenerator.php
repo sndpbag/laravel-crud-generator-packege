@@ -41,21 +41,55 @@ class RouteGenerator extends BaseGenerator
         ];
     }
 
+    // protected function generateRouteLine(): string
+    // {
+    //     $controllerNamespace = $this->getFullNamespace('controller');
+    //     $controllerClass = $this->options['modelName'] . 'Controller';
+    //     $fullControllerPath = "{$controllerNamespace}\\{$controllerClass}";
+    //     $routePath = $this->getRoutePath();
+
+    //     if ($this->options['api']) {
+    //         $route = "Route::apiResource('{$routePath}', \\{$fullControllerPath}::class);";
+    //     } else {
+    //         $route = "Route::resource('{$routePath}', \\{$fullControllerPath}::class);";
+    //     }
+
+    //     // Add middleware if auth is enabled
+    //     if ($this->options['auth'] && !$this->options['api']) {
+    //         $route = "Route::middleware(['auth'])->group(function () {\n    {$route}\n});";
+    //     }
+
+    //     return $route;
+    // }
+
+
     protected function generateRouteLine(): string
     {
         $controllerNamespace = $this->getFullNamespace('controller');
         $controllerClass = $this->options['modelName'] . 'Controller';
         $fullControllerPath = "{$controllerNamespace}\\{$controllerClass}";
         $routePath = $this->getRoutePath();
+        $controller = "\\{$fullControllerPath}::class";
 
         if ($this->options['api']) {
-            $route = "Route::apiResource('{$routePath}', \\{$fullControllerPath}::class);";
+            $route = "Route::apiResource('{$routePath}', {$controller});";
+            // (আপনি চাইলে API-এর জন্যও সফট ডিলিট রুট যোগ করতে পারেন)
+
         } else {
-            $route = "Route::resource('{$routePath}', \\{$fullControllerPath}::class);";
+            // Web routes
+            $route = "Route::resource('{$routePath}', {$controller});";
+
+            if ($this->options['softDelete']) {
+                $route .= "\n    Route::get('{$routePath}/trashed', [{$controller}, 'trashed'])->name('{$routePath}.trashed');";
+                // Restore-এর জন্য POST ব্যবহার করা ভালো
+                $route .= "\n    Route::post('{$routePath}/{id}/restore', [{$controller}, 'restore'])->name('{$routePath}.restore');"; 
+                $route .= "\n    Route::delete('{$routePath}/{id}/force', [{$controller}, 'forceDelete'])->name('{$routePath}.forceDelete');";
+            }
         }
 
         // Add middleware if auth is enabled
         if ($this->options['auth'] && !$this->options['api']) {
+            // গ্রুপটিকে আলাদা লাইনে রাখুন যাতে সফট ডিলিট রুটগুলোও এর ভেতরে থাকে
             $route = "Route::middleware(['auth'])->group(function () {\n    {$route}\n});";
         }
 

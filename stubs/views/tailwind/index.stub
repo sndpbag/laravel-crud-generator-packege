@@ -3,14 +3,34 @@
 @section('content')
 <div class="container mx-auto px-4 py-8">
     <div class="bg-white rounded-lg shadow-md">
-        <div class="flex justify-between items-center p-6 border-b">
-            <h2 class="text-2xl font-bold text-gray-800">{{modelNamePlural}}</h2>
-            <a href="{{ route('{{routePath}}.create') }}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                Create New
-            </a>
+       
+       <div class="flex justify-between items-center p-6 border-b">
+            <h2 class="text-2xl font-bold text-gray-800">
+                {{modelNamePlural}}
+                @if(request()->routeIs('{{routePath}}.trashed'))
+                    <span class="ml-2 px-2 py-1 text-sm bg-yellow-200 text-yellow-800 rounded">Trashed</span>
+                @endif
+            </h2>
+            <div class="flex gap-2">
+                @if(request()->routeIs('{{routePath}}.trashed'))
+                    <a href="{{ route('{{routePath}}.index') }}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                        View Active
+                    </a>
+                @else
+                    {{-- Soft delete-er option thakle ei button-ti dekhabe --}}
+                    @if(config('crud-generator.template') === 'tailwind') {{-- Ekhane check korte hobe softDelete enabled kina --}}
+                    <a href="{{ route('{{routePath}}.trashed') }}" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                        View Trashed
+                    </a>
+                    @endif
+                    <a href="{{ route('{{routePath}}.create') }}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        Create New
+                    </a>
+                @endif
+            </div>
         </div>
 
         <div class="p-6">
@@ -46,28 +66,44 @@
                         @forelse(${{modelVariablePlural}} as ${{modelVariable}})
                             <tr class="hover:bg-gray-50">
 {{tableColumns}}
+                                
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex gap-2">
-                                        <a href="{{ route('{{routePath}}.edit', ${{modelVariable}}) }}" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">
-                                            Edit
-                                        </a>
-
-
-                                        <a href="{{ route('{{routePath}}.show', ${{modelVariable}}) }}" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">
-                                          View
-                                        </a>
-
-
-
-                                        <form action="{{ route('{{routePath}}.destroy', ${{modelVariable}}) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
-                                                Delete
-                                            </button>
-                                        </form>
+                                        @if(request()->routeIs('{{routePath}}.trashed'))
+                                            {{-- Trashed View Buttons --}}
+                                            <form action="{{ route('{{routePath}}.restore', ${{modelVariable}}->id) }}" method="POST" class="inline">
+                                                @csrf
+                                                <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">
+                                                    Restore
+                                                </button>
+                                            </form>
+                                            <form action="{{ route('{{routePath}}.forceDelete', ${{modelVariable}}->id) }}" method="POST" class="inline" onsubmit="return confirm('Delete permanently? This cannot be undone!');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="bg-red-700 hover:bg-red-800 text-white px-3 py-1 rounded">
+                                                    Force Delete
+                                                </button>
+                                            </form>
+                                        @else
+                                            {{-- Active View Buttons --}}
+                                            <a href="{{ route('{{routePath}}.show', ${{modelVariable}}) }}" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">
+                                                View
+                                            </a>
+                                            <a href="{{ route('{{routePath}}.edit', ${{modelVariable}}) }}" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">
+                                                Edit
+                                            </a>
+                                            <form action="{{ route('{{routePath}}.destroy', ${{modelVariable}}) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to trash this item?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
+                                                    Trash
+                                                </button>
+                                            </form>
+                                        @endif
                                     </div>
                                 </td>
+
+
                             </tr>
                         @empty
                             <tr>

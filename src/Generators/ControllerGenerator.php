@@ -33,6 +33,23 @@ class ControllerGenerator extends BaseGenerator
 
         $path = $this->getControllerPath();
         $this->ensureDirectoryExists(dirname($path));
+
+
+        if ($this->options['softDelete'] && !$this->options['api']) {
+            $softDeleteStub = $this->getStub('controller.softdeletes'); // (এই স্টাবটি পরের ধাপে তৈরি করতে হবে)
+            
+            $softDeleteStub = $this->replaceModelVariable($softDeleteStub);
+            $softDeleteStub = str_replace('{{modelName}}', $this->options['modelName'], $softDeleteStub);
+            $softDeleteStub = str_replace('{{viewPath}}', $this->getViewPath(), $softDeleteStub);
+            $softDeleteStub = str_replace('{{routePath}}', $this->getRoutePath(), $softDeleteStub);
+            
+            $stub = str_replace('{{softDeleteMethods}}', $softDeleteStub, $stub);
+        } else {
+            $stub = str_replace('{{softDeleteMethods}}', '', $stub);
+        }
+
+
+
         File::put($path, $stub);
 
         return [

@@ -1,0 +1,29 @@
+public function trashed()
+    {
+        ${{modelVariablePlural}} = {{modelName}}::onlyTrashed()->paginate(config('crud-generator.pagination'));
+        return view('{{viewPath}}.index', compact('{{modelVariablePlural}}'))->with('trashed', true);
+    }
+
+    public function restore($id)
+    {
+        ${{modelVariable}} = {{modelName}}::onlyTrashed()->findOrFail($id);
+        ${{modelVariable}}->restore();
+
+        return redirect()->route('{{routePath}}.index')
+            ->with('success', config('crud-generator.messages.updated', 'Restored successfully!'));
+    }
+
+    public function forceDelete($id)
+    {
+        ${{modelVariable}} = {{modelName}}::onlyTrashed()->findOrFail($id);
+        
+        // (Optional: Copy file deletion logic from destroyMethod if needed)
+        // if (${{modelVariable}}->image) {
+        //     \Storage::disk('public')->delete(${{modelVariable}}->image);
+        // }
+
+        ${{modelVariable}}->forceDelete();
+
+        return redirect()->route('{{routePath}}.trashed')
+            ->with('success', config('crud-generator.messages.deleted', 'Deleted permanently!'));
+    }
