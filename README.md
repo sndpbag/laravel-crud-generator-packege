@@ -60,6 +60,7 @@ Stop wasting time writing repetitive CRUD code! This package generates:
 - Bootstrap & Tailwind support
 - API mode (JSON responses)
 - Authentication support
+- ✅ **Email Notification (Mailable + Job) support**
 
 </td>
 </tr>
@@ -153,6 +154,28 @@ php artisan make:crud Admin/Post \
 php artisan make:crud Product --fields="name:string,price:integer" --api
 ```
 
+
+---
+
+### 📧 ইমেল নোটিফিকেশন সহ CRUD
+
+আপনি যদি চান যে নতুন কোনো ডেটা তৈরি (create) হওয়ার সাথে সাথে একটি ইমেল নোটিফিকেশন পাঠানো হোক, তবে `--email` ফ্ল্যাগটি ব্যবহার করুন।
+
+```bash
+php artisan make:crud Order --fields="item_name:string,price:integer" --belongsTo=User --email
+
+
+এটি স্বয়ংক্রিয়ভাবে তৈরি করবে:
+
+✅ app/Mail/OrderCreatedMailable.php (ShouldQueue সহ)
+
+✅ app/Jobs/SendOrderCreatedEmailJob.php
+
+✅ resources/views/emails/order.blade.php (Markdown টেমপ্লেট)
+
+✅ OrderController-এর store মেথডে জব ডিসপ্যাচ করার কোড।
+
+
 ---
 
 ## 🎨 Field Types
@@ -215,6 +238,7 @@ php artisan make:crud Product --fields="name:string,price:integer" --api
 | `--api` | Generate API instead of web | `--api` |
 | `--tests` | Generate PHPUnit tests | `--tests` |
 | `--pest` | Generate Pest tests | `--pest` |
+| `--email` | নতুন রেকর্ড তৈরি হলে ইমেল পাঠানোর জন্য Mailable ও Job তৈরি করে | `--email` |
 
 ---
 
@@ -299,6 +323,26 @@ return [
     'pagination' => 10,
     'alert_library' => 'sweetalert2',
 ];
+
+আপনি `config/crud-generator.php` ফাইলে ডিফল্ট ভ্যালু পরিবর্তন করতে পারেন।
+
+প্রথমে কনফিগ ফাইলটি পাবলিশ করুন:
+```bash
+php artisan vendor:publish --tag=crud-generator-config
+
+
+📧 ইমেল নোটিফিকেশন সেটআপ (Email Notification Setup)
+--email ফ্ল্যাগটি ব্যবহার করার জন্য আপনাকে দুটি জিনিস সেট করতে হবে:
+
+১. অ্যাডমিন ইমেল সেট করুন: JobGenerator স্বয়ংক্রিয়ভাবে মডেলে email ফিল্ড খুঁজে বের করার চেষ্টা করে। যদি না পায়, তবে এটি config/crud-generator.php ফাইলে থাকা admin_email ব্যবহার করে।
+
+আপনার .env ফাইলে অ্যাডমিন ইমেল যোগ করুন:
+
+ADMIN_EMAIL="your_admin_email@example.com"
+
+২. Queue Worker চালু করুন: ইমেলগুলো যেন ইউজার এক্সপেরিয়েন্স নষ্ট না করে, সেজন্য এগুলো Queue-এর মাধ্যমে পাঠানো হয় (ShouldQueue)। তাই আপনাকে অবশ্যই একটি Queue Worker চালু রাখতে হবে:
+
+php artisan queue:work
 ```
 
 ---

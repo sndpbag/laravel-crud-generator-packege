@@ -51,6 +51,14 @@
                                         <a href="{{ route('{{routePath}}.edit', ${{modelVariable}}) }}" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">
                                             Edit
                                         </a>
+
+
+                                        <a href="{{ route('{{routePath}}.show', ${{modelVariable}}) }}" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">
+                                          View
+                                        </a>
+
+
+
                                         <form action="{{ route('{{routePath}}.destroy', ${{modelVariable}}) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure?');">
                                             @csrf
                                             @method('DELETE')
