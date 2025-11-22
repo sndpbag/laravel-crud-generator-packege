@@ -8,7 +8,7 @@ return [
     | Choose your preferred CSS framework for generated views.
     | Options: 'bootstrap', 'tailwind'
     */
-    'template' => env('CRUD_TEMPLATE', 'bootstrap'),
+    'template' => env('CRUD_TEMPLATE', 'tailwind'),
 
     /*
     |--------------------------------------------------------------------------
